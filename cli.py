@@ -1,6 +1,6 @@
 import ollama
 
-model = 'llama3'
+MODEL = 'llama3'
 
 class cli:
     def __init__(self):
