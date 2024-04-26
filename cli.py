@@ -4,7 +4,7 @@ MODEL = 'llama3'
 
 class cli:
     def __init__(self):
-        self.model = model
+        self.model = MODEL
         self.history = []
 
     def run(self):
