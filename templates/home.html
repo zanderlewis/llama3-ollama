@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<body style="background-color: #232323; color: #ddd">
+    <form style="text-align: center; padding: 20px;" onsubmit="sendMessage(event)">
+        <label for="message">Message:</label>
+        <input type="text" id="message" required>
+        <button type="submit">Send</button>
+    </form>
+    <div style="text-align: center;">
+        <button style="margin: 20px;" onclick="clearHistory()">Clear History</button>
+    </div>
+    <div style="text-align: left; word-wrap: break-word; hyphens: auto; padding-top: 50px;" id="response"></div>
+    <hr>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/get_history',
+                type: 'post',
+                success: function (history) {
+                    for (var i = 0; i < history.length; i++) {
+                        var message = history[i];
+                        var messageDiv = '<hr><div style="padding-top: 10px; padding-bottom: 10px;" class="' + message.role + '-message"><span style="color: yellow;">' + (message.role === 'user' ? 'YOU: ' : 'LLaMa3: ') + '</span><span style="text-indent: -1em; padding-left: 1em;">' + message.content + '</span></div>';
+                        $('#response').prepend(messageDiv);
+                    }
+                }
+            });
+        });
+
+        function sendMessage(event) {
+            event.preventDefault();
+            var message = $('#message').val();
+            $('#response').prepend('<hr><div style="padding-top: 10px; padding-bottom: 10px;" class="user-message"><span style="color: yellow;">YOU: </span><span style="text-indent: -1em; padding-left: 1em;">' + message + '</span></div>');
+            $.ajax({
+                url: '/send_message',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify({ message: message }),
+                success: function (response) {
+                    $('#response').prepend('<hr><div class="assistant-message"><span style="color: yellow;">LLaMa3: </span><span style="text-indent: -1em; padding-left: 1em;">' + response.content + '</span></div>');
+                }
+            });
+            $('#message').val('');
+        }
+
+        function clearHistory() {
+            $.ajax({
+                url: '/clear_history',
+                type: 'post',
+                success: function (response) {
+                    $('#response').empty();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
